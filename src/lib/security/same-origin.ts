@@ -1,6 +1,7 @@
 const STATIC_ALLOWED_HOSTS = new Set<string>([
   "bebituslab.com",
   "www.bebituslab.com",
+  "admin.bebituslab.com",
 ]);
 
 const STATIC_ALLOWED_PATTERNS: RegExp[] = [
