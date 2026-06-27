@@ -26,6 +26,7 @@ export async function middleware(req: NextRequest) {
   }
 
   const loginUrl = new URL("/login", req.url);
-  loginUrl.searchParams.set("next", pathname);
+  // 루트(/)면 next 생략 — 로그인 후 기본이 / 라 URL 깔끔하게.
+  if (pathname !== "/") loginUrl.searchParams.set("next", pathname);
   return NextResponse.redirect(loginUrl);
 }
