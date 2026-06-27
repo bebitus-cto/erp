@@ -80,3 +80,50 @@ export async function getAdminConsultations(): Promise<AdminConsultationRow[]> {
     };
   });
 }
+
+export interface AdminApplicationRow {
+  id: string;
+  createdAt: string;
+  bootcamp: string;
+  name: string;
+  email: string;
+  phone: string;
+  amount: number;
+  status: string;
+  projectIdea: string;
+  answers: Record<string, unknown> | null;
+}
+
+export async function getAdminApplications(): Promise<AdminApplicationRow[]> {
+  const sb = getSupabaseAdmin();
+  if (sb === null) return [];
+  const { data, error } = await sb
+    .from("applications")
+    .select(
+      "id, created_at, bootcamp, name, email, phone, amount, status, answers",
+    )
+    .order("created_at", { ascending: false })
+    .limit(500);
+  if (error !== null) {
+    console.warn("[admin] applications 조회 실패:", error.message);
+    return [];
+  }
+  const s = (v: unknown): string =>
+    v === null || v === undefined ? "" : String(v);
+  return (data ?? []).map((r) => {
+    const row = r as Record<string, unknown>;
+    const answers = (row.answers ?? null) as Record<string, unknown> | null;
+    return {
+      id: s(row.id),
+      createdAt: formatKstShort(s(row.created_at)),
+      bootcamp: s(row.bootcamp),
+      name: s(row.name),
+      email: s(row.email),
+      phone: s(row.phone),
+      amount: typeof row.amount === "number" ? row.amount : Number(row.amount ?? 0),
+      status: s(row.status),
+      projectIdea: answers !== null ? s(answers.project_idea) : "",
+      answers,
+    };
+  });
+}

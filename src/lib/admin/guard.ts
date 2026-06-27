@@ -10,6 +10,6 @@ export async function requireAdminOrRedirect(): Promise<void> {
   const store = await cookies();
   const token = store.get(SESSION_COOKIE_NAME)?.value;
   if (token === undefined || token === "" || !verifySessionToken(token)) {
-    redirect("/bridge-2030/login");
+    redirect("/login");
   }
 }

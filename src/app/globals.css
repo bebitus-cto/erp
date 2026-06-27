@@ -3,7 +3,7 @@
 /* 터치 기기 sticky hover 방지 — 어드민 컴포넌트의 can-hover:hover 변이 */
 @custom-variant can-hover (@media (hover: hover) and (pointer: fine));
 
-/* DataTable mono 셀 (Carbon 토큰은 bridge-2030/layout.tsx 의 인라인 CARBON_VARS) */
+/* DataTable mono 셀 (Carbon 토큰은 bridge/layout.tsx 의 인라인 CARBON_VARS) */
 .carbon-mono {
   font-family: "IBM Plex Mono", ui-monospace, monospace;
 }

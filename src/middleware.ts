@@ -5,17 +5,16 @@ import {
   verifySessionTokenEdge,
 } from "@/lib/admin/session-edge";
 
-// /admin/* 를 보호. /admin/login 은 통과(리다이렉트 루프 방지).
+// erp 전체가 관리자 화면 → 전 경로 보호. /login·/api·정적 자원은 제외.
 export const config = {
-  matcher: ["/bridge-2030/:path*"],
+  matcher: [
+    "/",
+    "/((?!login|api|_next/static|_next/image|favicon.ico).*)",
+  ],
 };
 
 export async function middleware(req: NextRequest) {
   const { pathname } = req.nextUrl;
-
-  if (pathname === "/bridge-2030/login") {
-    return NextResponse.next();
-  }
 
   const token = req.cookies.get(SESSION_COOKIE_NAME)?.value;
   if (
@@ -26,10 +25,7 @@ export async function middleware(req: NextRequest) {
     return NextResponse.next();
   }
 
-  const loginUrl = new URL("/bridge-2030/login", req.url);
-  // 상대 경로(/admin*)만 next 로 전달 — open-redirect 방지.
-  if (pathname.startsWith("/bridge-2030")) {
-    loginUrl.searchParams.set("next", pathname);
-  }
+  const loginUrl = new URL("/login", req.url);
+  loginUrl.searchParams.set("next", pathname);
   return NextResponse.redirect(loginUrl);
 }

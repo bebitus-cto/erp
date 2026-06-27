@@ -33,7 +33,10 @@ export default function AdminLoginForm() {
       }
       const params = new URLSearchParams(window.location.search);
       const next = params.get("next");
-      const dest = next !== null && next.startsWith("/bridge-2030") ? next : "/bridge-2030";
+      const dest =
+        next !== null && next.startsWith("/") && !next.startsWith("//")
+          ? next
+          : "/";
       router.replace(dest);
     } catch {
       setError("네트워크 오류가 발생했습니다.");

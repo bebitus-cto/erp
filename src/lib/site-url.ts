@@ -4,7 +4,7 @@
  * 절대 URL 이 필요하다(메일 클라이언트는 상대경로를 열 수 없다).
  */
 export function getBaseUrl(): string {
-  const explicit = process.env.NEXT_PUBLIC_SITE_URL;
+  const explicit = process.env.SITE_URL;
   if (explicit !== undefined && explicit.trim() !== "") {
     return explicit.trim().replace(/\/$/, "");
   }
