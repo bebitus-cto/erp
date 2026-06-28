@@ -54,12 +54,13 @@ export function verifyPassword(input: string): boolean {
   return timingSafeEqual(a, b);
 }
 
-export function createSessionToken(): string | null {
+export function createSessionToken(email?: string): string | null {
   const secret = getSecret();
   if (secret === null) return null;
   const now = Math.floor(Date.now() / 1000);
   const payload: SessionPayload = {
-    sub: "admin",
+    // 비번 경로는 인자 없이 호출 → "admin" 유지. OAuth 경로는 검증된 이메일을 넣는다.
+    sub: email !== undefined && email.trim() !== "" ? email.trim() : "admin",
     iat: now,
     exp: now + SESSION_TTL_SECONDS,
   };
@@ -94,7 +95,7 @@ export function verifySessionToken(token: string): boolean {
 export interface SessionCookieOptions {
   httpOnly: boolean;
   secure: boolean;
-  sameSite: "strict";
+  sameSite: "lax";
   path: string;
   maxAge: number;
 }
@@ -103,7 +104,10 @@ export function getSessionCookieOptions(): SessionCookieOptions {
   return {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
-    sameSite: "strict",
+    // OAuth 콜백(google→우리 도메인 복귀) 직후 첫 네비게이션에 strict 면 Safari/iOS 가 쿠키를
+    // 안 실어 "로그인 성공→/login" 무한루프(=락아웃)가 난다. admin 세션엔 lax 로 충분(오픈리다이렉트
+    // 가드 별도 존재). 비번 로그인도 같은 쿠키라 함께 lax.
+    sameSite: "lax",
     path: "/",
     maxAge: SESSION_TTL_SECONDS,
   };

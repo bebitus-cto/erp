@@ -24,6 +24,15 @@ interface LoginBody {
 }
 
 export async function POST(req: Request) {
+  // 비밀번호 로그인 백도어 토글 — Google 로그인 전환 후 ADMIN_PASSWORD_LOGIN_ENABLED=false 로
+  // 끄면 비번 진입을 차단한다. 미설정/그 외 값은 허용(락아웃 방지 우선 — 명시적 "false" 일 때만 차단).
+  if (process.env.ADMIN_PASSWORD_LOGIN_ENABLED?.toLowerCase() === "false") {
+    return NextResponse.json(
+      { error: "비밀번호 로그인이 비활성화되어 있습니다. Google 로그인을 사용해 주세요." },
+      { status: 403 },
+    );
+  }
+
   const originCheck = verifySameOrigin(req);
   if (!originCheck.ok) {
     return sameOriginForbiddenResponse();
