@@ -1,5 +1,7 @@
 import { getSupabaseAdmin } from "@/lib/supabase/server";
 
+// 테이블명: bookings → client_meetings 로 변경(클라이언트 외주 미팅 예약). 2026-06-28.
+
 export interface BookingRecord {
   id: string;
   created_at: string;
@@ -47,7 +49,7 @@ export async function insertPendingBooking(b: NewBooking): Promise<string> {
   const sb = getSupabaseAdmin();
   if (sb === null) throw new Error("Supabase 가 설정되지 않았습니다.");
   const { data, error } = await sb
-    .from("bookings")
+    .from("client_meetings")
     .insert({
       status: "pending",
       name: b.name,
@@ -75,7 +77,7 @@ export async function getHoldingSlotStarts(): Promise<Set<string>> {
   const sb = getSupabaseAdmin();
   if (sb === null) return result;
   const { data, error } = await sb
-    .from("bookings")
+    .from("client_meetings")
     .select("slot_start_iso")
     .in("status", ["pending", "confirmed"]);
   if (error !== null) {
@@ -96,7 +98,7 @@ export async function hasActiveBooking(
   const sb = getSupabaseAdmin();
   if (sb === null) return false;
   const { data, error } = await sb
-    .from("bookings")
+    .from("client_meetings")
     .select("email, phone, slot_start_iso")
     .in("status", ["pending", "confirmed"]);
   if (error !== null) {
@@ -116,7 +118,7 @@ export async function getBookingById(id: string): Promise<BookingRecord | null> 
   const sb = getSupabaseAdmin();
   if (sb === null) return null;
   const { data, error } = await sb
-    .from("bookings")
+    .from("client_meetings")
     .select("*")
     .eq("id", id)
     .single();
@@ -132,7 +134,7 @@ export async function setBookingConfirmed(
   const sb = getSupabaseAdmin();
   if (sb === null) throw new Error("Supabase 가 설정되지 않았습니다.");
   const { error } = await sb
-    .from("bookings")
+    .from("client_meetings")
     .update({
       status: "confirmed",
       google_event_id: eventId !== "" ? eventId : null,
@@ -150,7 +152,7 @@ export async function setBookingRejected(
   const sb = getSupabaseAdmin();
   if (sb === null) throw new Error("Supabase 가 설정되지 않았습니다.");
   const { error } = await sb
-    .from("bookings")
+    .from("client_meetings")
     .update({
       status: "rejected",
       rejected_at: new Date().toISOString(),
@@ -165,7 +167,7 @@ export async function listBookings(): Promise<BookingRecord[]> {
   const sb = getSupabaseAdmin();
   if (sb === null) return [];
   const { data, error } = await sb
-    .from("bookings")
+    .from("client_meetings")
     .select("*")
     .order("created_at", { ascending: false })
     .limit(500);
